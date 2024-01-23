@@ -9,6 +9,7 @@ Tk().withdraw()
 selected_folder = askdirectory()
 
 select_folder_qty = Number_Of_Files(selected_folder)
+print(f"The number of files in the folder that you selected is {final_folder_qty}")
 
 parent_folder = path.dirname(selected_folder)
 
@@ -30,25 +31,23 @@ for root, _, files in walk(selected_folder):
         if path.isfile(file_path):
             _, extension = path.splitext(file_path)
 
-            if extension.lower() in [".jpg", ".jpeg", ".heic", ".heif"]:
-                image_date = File_Date(file_path, extension)
+            if extension.lower() in [".jpg", ".jpeg", ".heic", ".heif", ".mov", ".mp4", ".png"]:
+                date = File_Date(file_path, extension)
 
-                if image_date is not None:
-                    shoot_date = datetime.strptime(image_date, "%Y:%m:%d %H:%M:%S")
+                if date is not None:
+                    shoot_date = datetime.strptime(date, "%Y:%m:%d %H:%M:%S")
 
-                    year = str(shoot_date.year)
-                    month = str(shoot_date.month).zfill(2)
-                    day = str(shoot_date.day).zfill(2)
-                    hour = str(shoot_date.hour).zfill(2)
-                    minute = str(shoot_date.minute).zfill(2)
-                    second = str(shoot_date.second).zfill(2)
+                    date_string = shoot_date.strftime("%Y_%m_%d")
+                    year, month, day = date_string.split("_")
+
+                    time_string = shoot_date.strftime("%H_%M_%S")
 
                     file_destiny = path.join(final_folder, year, f"Month_{month}")
 
                     if not path.exists(file_destiny):
                         makedirs(file_destiny)
 
-                    new_file_name = f"Day_{day}_{hour}_{minute}_{second}{extension}"
+                    new_file_name = f"Day_{day}_{time_string}{extension}"
                     new_file_path = path.join(file_destiny, new_file_name)
                     move(file_path, new_file_path)
 
