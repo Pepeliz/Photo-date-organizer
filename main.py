@@ -1,14 +1,23 @@
 # Import necessary libraries
 from tkinter import Tk, Button, Label, filedialog, Text, END
-from functions import number_of_files, file_date, organize_other_files, print_to_gui
+from functions import number_of_files, file_date, organize_other_files
 from os import makedirs, path, walk
 from shutil import move
 from datetime import datetime
 from time import sleep
 
 def select_folder(label_widget):
+    '''
+    Function to open a dialog box to select a directory and update a label widget with the selected directory.
+
+    Parameters:
+    label_widget (tkinter.Label): The label widget to be updated with the selected directory.
+
+    Returns:
+    str: The path of the selected directory.
+    '''
     selected_folder = filedialog.askdirectory()
-    label_widget.config(text=f"Folder: {selected_folder}")
+    label_widget.config(text=f'Folder: {selected_folder}')
     return selected_folder
 
 
@@ -20,23 +29,23 @@ def main():
     text_widget.delete(1.0, END)
 
     # Get the selected folder from the label widget
-    selected_folder = label_source.cget("text").replace("Folder: ", "")
-    final_folder = label_destination.cget("text").replace("Folder: ", "")
+    selected_folder = label_source.cget('text').replace('Folder: ', '')
+    final_folder = label_destination.cget('text').replace('Folder: ', '')
 
     # Check if a folder was selected
     if not selected_folder:
-        label_result.config("No folder was selected. Exiting the program.")
+        text_widget.insert(END, 'No folder was selected. Please select a folder.\n')
         sleep(1)
         return
 
     # Count the number of files in the selected directory
     num_files = number_of_files(selected_folder)
-    print_to_gui(f'The folder you selected has {num_files} files', text_widget)
+    text_widget.insert(END, f'The folder you selected has {num_files} files.\n')
     sleep(0.5)
 
     # Check if the folder is empty
     if num_files == 0:
-        print_to_gui("The selected folder is empty. Exiting the program.", text_widget)
+        text_widget.insert(END, 'The selected folder is empty. Please select a valid folder.\n')
         sleep(1)
         return
 
@@ -66,14 +75,14 @@ def main():
     final_folder_qty = number_of_files(final_folder) - other_files_qty
 
     # Print the number of organized files
-    print_to_gui(f'The number of files organized is {final_folder_qty}', text_widget)
+    text_widget.insert(END, f'The number of files organized is {final_folder_qty}.\n')
     sleep(0.5)
 
     # Check if all files have been copied correctly
     if final_folder_qty == number_of_files(selected_folder):
-        print_to_gui('All the files have been copied correctly', text_widget)
+        text_widget.insert(END, 'All the files have been copied correctly.\n')
     else:
-        print_to_gui(f'The number of files without date is {other_files_qty}', text_widget)
+        text_widget.insert(END, f'The number of files without date is {other_files_qty}.\n')
 
 
 def organize_by_date(final_folder, file_path, file, date, extension):
@@ -112,17 +121,17 @@ if __name__ == '__main__':
     root.title('Photo Organizer')
     root.geometry('500x300')
 
-    label_source = Label(root, text="Source Folder: ")
+    label_source = Label(root, text='Source Folder: ')
     label_source.pack(pady=10)
-    btn_select_source = Button(root, text="Select Source Folder", command=lambda: select_folder(label_source))
+    btn_select_source = Button(root, text='Select Source Folder', command=lambda: select_folder(label_source))
     btn_select_source.pack(pady=10)
 
-    label_destination = Label(root, text="Destination Folder: ")
+    label_destination = Label(root, text='Destination Folder: ')
     label_destination.pack(pady=10)
-    btn_select_destination = Button(root, text="Select Destination Folder", command=lambda: select_folder(label_destination))
+    btn_select_destination = Button(root, text='Select Destination Folder', command=lambda: select_folder(label_destination))
     btn_select_destination.pack(pady=10)
 
-    btn_execute = Button(root, text="Execute", command=main)
+    btn_execute = Button(root, text='Execute', command=main)
     btn_execute.pack(pady=10)
     
     text_widget = Text(root)

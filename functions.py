@@ -1,6 +1,5 @@
 # This script is a library for main.py code
 # Import necessary libraries
-from tkinter import END
 from os import walk, path, makedirs
 from shutil import move
 import exifread
@@ -37,7 +36,6 @@ def file_date(file_path, file_type):
     exif_date (str): The date of the file, or None if an error occurs or the date is not found.
     '''
     exif_date = None
-
     try:
         # Check the file type and read the EXIF data accordingly
         if file_type.lower() in ['.jpg', '.jpeg', '.heic']:
@@ -55,8 +53,7 @@ def file_date(file_path, file_type):
             return str(exif_date)
 
     except (IOError, AttributeError, Exception) as e:
-        # Print an error message if an exception occurs
-        print_to_gui(f'Error {file_path}: {e}', text_widget)
+        pass
 
     return None
 
@@ -79,11 +76,6 @@ def organize_other_files(destiny_folder, file_path, file):
     # Move the file to the new directory
     new_file_path = path.join(other_files, file)
     move(file_path, new_file_path)
-
-
-def print_to_gui(message, text_widget):
-    text_widget.insert(END, message + "\n")
-    text_widget.see(END)
 
 
 if __name__ == '__main__':
