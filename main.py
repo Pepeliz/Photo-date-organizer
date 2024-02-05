@@ -1,70 +1,132 @@
-from tkinter import Tk
-from tkinter.filedialog import askdirectory
-from functions import Number_Of_Files, File_Date, Organize_Other_Files
+# Import necessary libraries
+from tkinter import Tk, Button, Label, filedialog, Text, END
+from functions import number_of_files, file_date, organize_other_files, print_to_gui
 from os import makedirs, path, walk
 from shutil import move
 from datetime import datetime
+from time import sleep
 
-Tk().withdraw()
-selected_folder = askdirectory()
+def select_folder(label_widget):
+    selected_folder = filedialog.askdirectory()
+    label_widget.config(text=f"Folder: {selected_folder}")
+    return selected_folder
 
-select_folder_qty = Number_Of_Files(selected_folder)
-print(f"The number of files in the folder that you selected is {final_folder_qty}")
 
-parent_folder = path.dirname(selected_folder)
+def main():
+    '''
+    Main function to organize files in a directory based on their creation date.
+    '''
+    # Clean text
+    text_widget.delete(1.0, END)
 
-final_folder_name = f"{path.basename(selected_folder)}_organized"
+    # Get the selected folder from the label widget
+    selected_folder = label_source.cget("text").replace("Folder: ", "")
+    final_folder = label_destination.cget("text").replace("Folder: ", "")
 
-final_folder = path.join(parent_folder, final_folder_name)
+    # Check if a folder was selected
+    if not selected_folder:
+        label_result.config("No folder was selected. Exiting the program.")
+        sleep(1)
+        return
 
-if not path.exists(final_folder):
-    makedirs(final_folder)
+    # Count the number of files in the selected directory
+    num_files = number_of_files(selected_folder)
+    print_to_gui(f'The folder you selected has {num_files} files', text_widget)
+    sleep(0.5)
 
-else:
-    print(f"The folder '{final_folder}' already exists.")
+    # Check if the folder is empty
+    if num_files == 0:
+        print_to_gui("The selected folder is empty. Exiting the program.", text_widget)
+        sleep(1)
+        return
 
-for root, _, files in walk(selected_folder):
-
-    for file in files:
-        file_path = path.join(root, file)
-
-        if path.isfile(file_path):
+    # Iterate through the selected directory using walk
+    for root, _, files in walk(selected_folder):
+        # Process each file
+        for file in files:
+            file_path = path.join(root, file)
             _, extension = path.splitext(file_path)
 
-            if extension.lower() in [".jpg", ".jpeg", ".heic", ".heif", ".mov", ".mp4", ".png"]:
-                date = File_Date(file_path, extension)
+            # Check the file extension
+            if extension.lower() in ['.jpg', '.jpeg', '.heic', '.heif', '.png']:
+                date = file_date(file_path, extension)
 
+                # If the file has a date, organize it by date
                 if date is not None:
-                    shoot_date = datetime.strptime(date, "%Y:%m:%d %H:%M:%S")
-
-                    date_string = shoot_date.strftime("%Y_%m_%d")
-                    year, month, day = date_string.split("_")
-
-                    time_string = shoot_date.strftime("%H_%M_%S")
-
-                    file_destiny = path.join(final_folder, year, f"Month_{month}")
-
-                    if not path.exists(file_destiny):
-                        makedirs(file_destiny)
-
-                    new_file_name = f"Day_{day}_{time_string}{extension}"
-                    new_file_path = path.join(file_destiny, new_file_name)
-                    move(file_path, new_file_path)
-
+                    organize_by_date(final_folder, file_path, file, date, extension)
+                # If the file doesn't have a date, move it to the 'Other_files' folder
                 else:
-                    Organize_Other_Files(final_folder, file_path, file)
-
+                    organize_other_files(final_folder, file_path, file)
+            # If the file has an unsupported extension, move it to the 'Other_files' folder
             else:
-                Organize_Other_Files(final_folder, file_path, file)
-                
-other_files_qty = Number_Of_Files(path.join(final_folder, "Other_files"))
+                organize_other_files(final_folder, file_path, file)
 
-final_folder_qty = Number_Of_Files(final_folder) - other_files_qty
+    # Count the number of files in the 'Other_files' folder and the final folder
+    other_files_qty = number_of_files(path.join(final_folder, 'Other_files'))
+    final_folder_qty = number_of_files(final_folder) - other_files_qty
 
-print(f"The number of files organized is {final_folder_qty}")
+    # Print the number of organized files
+    print_to_gui(f'The number of files organized is {final_folder_qty}', text_widget)
+    sleep(0.5)
 
-if final_folder_qty == select_folder_qty:
-    print("All the files have been copied correctly")
+    # Check if all files have been copied correctly
+    if final_folder_qty == number_of_files(selected_folder):
+        print_to_gui('All the files have been copied correctly', text_widget)
+    else:
+        print_to_gui(f'The number of files without date is {other_files_qty}', text_widget)
 
-else:
-    print(f"The number of files without date is {other_files_qty}")
+
+def organize_by_date(final_folder, file_path, file, date, extension):
+    '''
+    Organize a file by its creation date.
+
+    Parameters:
+    final_folder (str): The path of the final folder.
+    file_path (str): The path of the file to be organized.
+    file (str): The name of the file to be organized.
+    date (str): The creation date of the file.
+    extension (str): The extension of the file.
+    '''
+    # Parse the date
+    shoot_date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
+
+    # Format the date and time
+    year, month, day = shoot_date.strftime('%Y_%m_%d').split('_')
+    hour, minute, second = shoot_date.strftime('%H_%M_%S').split('_')
+
+    # Create the destination directory
+    file_destiny = path.join(final_folder, year, f'{datetime.strptime(month, "%m").strftime("%B")}')
+
+    # Create the destination directory if it doesn't exist
+    if not path.exists(file_destiny):
+        makedirs(file_destiny)
+
+    # Move the file to the destination directory
+    new_file_name = f'Day_{day}_{hour}h_{minute}min_{second}sec{extension}'
+    new_file_path = path.join(file_destiny, new_file_name)
+    move(file_path, new_file_path)
+
+# Run the main function
+if __name__ == '__main__':
+    root = Tk()
+    root.title('Photo Organizer')
+    root.geometry('500x300')
+
+    label_source = Label(root, text="Source Folder: ")
+    label_source.pack(pady=10)
+    btn_select_source = Button(root, text="Select Source Folder", command=lambda: select_folder(label_source))
+    btn_select_source.pack(pady=10)
+
+    label_destination = Label(root, text="Destination Folder: ")
+    label_destination.pack(pady=10)
+    btn_select_destination = Button(root, text="Select Destination Folder", command=lambda: select_folder(label_destination))
+    btn_select_destination.pack(pady=10)
+
+    btn_execute = Button(root, text="Execute", command=main)
+    btn_execute.pack(pady=10)
+    
+    text_widget = Text(root)
+    text_widget.pack(pady=10)
+
+    # Start the main GUI loop
+    root.mainloop()
