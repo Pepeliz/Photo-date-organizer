@@ -21,4 +21,4 @@ pip install ExifRead==2.3.2
 ## Project Structure
 
 - `main.py` Contains the main implementation of the code.
-|-- `functions.py` Contains the implementation of various functions.
+- `functions.py` Contains the implementation of various functions.
