@@ -16,7 +16,23 @@ pip install ExifRead==2.3.2
 
 ## How to run the code
 
+1. Clone the repository
 
+```bash
+
+```
+
+2. Navigate to the project directory:
+
+```bash
+
+```
+
+3. Run the script:
+
+```bash
+
+```
 
 ## Project Structure
 
