@@ -4,7 +4,7 @@ This script organize photos in a directory based on the date their were shooted 
 
 ## Project purpose
 
-This is my first project and is intended to demonstrate my python knowledge
+This is my first project and is intended to demonstrate my python knowledge, feel free to suggest ways to improve the script.
 
 ## Prerequisites
 
